@@ -1,0 +1,144 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts  Account[]
+  sessions  Session[]
+  recipes   Recipe[]
+  follows   Follow[] @relation("FollowsFrom")
+  followers Follow[] @relation("FollowsTo")
+  mealPlans MealPlan[]
+  likes     Like[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Recipe {
+  id           String   @id @default(cuid())
+  authorId     String
+  author       User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  title        String
+  heroImage    String?
+  cookTimeMin  Int
+  servings     Int
+  estCostTotal Float    @default(0)
+  tags         String   // JSON array stored as string
+  steps        String   // JSON array stored as string
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  ingredients   RecipeIngredient[]
+  likes         Like[]
+  mealPlanItems MealPlanItem[]
+
+  @@index([authorId])
+  @@index([createdAt])
+}
+
+model RecipeIngredient {
+  id          String @id @default(cuid())
+  recipeId    String
+  recipe      Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  name        String
+  qty         Float
+  unit        String
+  approxPrice Float  @default(0)
+
+  @@index([recipeId])
+}
+
+model Follow {
+  id        String   @id @default(cuid())
+  fromId    String
+  toId      String
+  from      User     @relation("FollowsFrom", fields: [fromId], references: [id], onDelete: Cascade)
+  to        User     @relation("FollowsTo", fields: [toId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([fromId, toId])
+}
+
+model MealPlan {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  weekOf    DateTime // Monday of week
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  items MealPlanItem[]
+
+  @@unique([userId, weekOf])
+}
+
+model MealPlanItem {
+  id         String   @id @default(cuid())
+  mealPlanId String
+  mealPlan   MealPlan @relation(fields: [mealPlanId], references: [id], onDelete: Cascade)
+  dayIndex   Int      // 0-6 (Monday to Sunday)
+  mealType   String   // Breakfast | Lunch | Dinner
+  recipeId   String
+  recipe     Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  servings   Int      @default(1)
+
+  @@index([mealPlanId])
+  @@index([recipeId])
+}
+
+model Like {
+  id       String @id @default(cuid())
+  userId   String
+  recipeId String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, recipeId])
+}
