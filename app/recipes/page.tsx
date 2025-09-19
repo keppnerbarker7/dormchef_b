@@ -37,7 +37,7 @@ export default function RecipesPage({
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2">Recipes</h1>
           <p className="text-muted-foreground">
-            Discover dorm-friendly recipes that won't break the bank
+            Discover dorm-friendly recipes that won&apos;t break the bank
           </p>
         </div>
 

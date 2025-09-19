@@ -63,6 +63,7 @@ export async function GET(request: Request) {
         },
         mealPlan: {
           select: {
+            createdAt: true,
             user: {
               select: {
                 id: true,

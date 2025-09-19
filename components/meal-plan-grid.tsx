@@ -229,7 +229,7 @@ export default function MealPlanGrid() {
                       ))
                     ) : (
                       <Button
-                        variant="dashed"
+                        variant="outline"
                         className="w-full h-full min-h-24 border-dashed border-2"
                         onClick={() => openAddRecipe(dayIndex, mealType)}
                       >

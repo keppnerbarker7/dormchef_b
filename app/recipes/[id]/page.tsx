@@ -89,7 +89,7 @@ export default async function RecipePage({
                   <Avatar>
                     <AvatarImage src={recipe.author.image || ''} />
                     <AvatarFallback>
-                      {recipe.author.name.charAt(0)}
+                      {recipe.author.name?.charAt(0) || 'U'}
                     </AvatarFallback>
                   </Avatar>
                   <div>
@@ -109,7 +109,7 @@ export default async function RecipePage({
               </div>
 
               <div className="flex flex-wrap gap-2 mb-6">
-                {recipe.tags.map((tag) => (
+                {recipe.tags.map((tag: string) => (
                   <Badge key={tag} variant="secondary">
                     {tag}
                   </Badge>
@@ -151,7 +151,7 @@ export default async function RecipePage({
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {recipe.steps.map((step, index) => (
+                  {recipe.steps.map((step: string, index: number) => (
                     <div key={index} className="flex space-x-4">
                       <div className="flex-shrink-0 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-medium">
                         {index + 1}
